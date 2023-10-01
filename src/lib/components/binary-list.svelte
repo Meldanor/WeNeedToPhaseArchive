@@ -27,7 +27,7 @@
 		<ol class=" list-disc list-inside">
 			{#each binariesPerWeek as binary}
 				<li>
-					<a href={`/download/${binary.path}`}>{formatISO(binary.buildDate)}</a>
+					<a href={`/download/${binary.path}`} download>{formatISO(binary.buildDate)}</a>
 				</li>
 			{/each}
 		</ol>
