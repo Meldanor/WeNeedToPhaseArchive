@@ -34,3 +34,4 @@ export const binaries = writable<Binary[]>([
 		path: 'data/dev/linux/WeNeedToPhase_20231001122750.zip'
 	}
 ]);
+
