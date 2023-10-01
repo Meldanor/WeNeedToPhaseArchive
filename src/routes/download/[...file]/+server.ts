@@ -1,5 +1,6 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { readFile } from 'fs/promises';
+import { basename } from 'path';
 
 export const GET: RequestHandler = async ({ params }) => {
 	const file = params.file;
@@ -12,7 +13,7 @@ export const GET: RequestHandler = async ({ params }) => {
 		status: 200,
 		headers: {
 			'Content-Type': 'application/octet-stream',
-			'Content-Disposition': `attachment; filename*=UTF-8''${encodeURIComponent(file)}`
+			'Content-Disposition': `attachment; filename*=UTF-8''${encodeURIComponent(basename(file))}`
 		}
 	});
 };
