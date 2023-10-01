@@ -1,37 +1,42 @@
 import type { Binary } from '$lib/interfaces/binary';
-import { writable } from 'svelte/store';
+
+import { join } from 'path';
+import { readdir } from 'fs/promises';
+import { env } from '$env/dynamic/private';
+
 import { parse } from 'date-fns';
 
-export const binaries = writable<Binary[]>([
-	{
-		buildDate: parse('20220930210457', 'yyyyMMddHHmmSS', new Date()),
-		operatingSystem: 'windows',
-		type: 'dev',
-		path: 'data/dev/windows/WeNeedToPhase_20220930210457.zip'
-	},
-	{
-		buildDate: parse('20230930210457', 'yyyyMMddHHmmSS', new Date()),
-		operatingSystem: 'windows',
-		type: 'dev',
-		path: 'data/dev/windows/WeNeedToPhase_20230930210457.zip'
-	},
-	{
-		buildDate: parse('20231001122750', 'yyyyMMddHHmmSS', new Date()),
-		operatingSystem: 'windows',
-		type: 'dev',
-		path: 'data/dev/windows/WeNeedToPhase_20231001122750.zip'
-	},
-	{
-		buildDate: parse('20230930210457', 'yyyyMMddHHmmSS', new Date()),
-		operatingSystem: 'linux',
-		type: 'dev',
-		path: 'data/dev/linux/WeNeedToPhase_20230930210457.zip'
-	},
-	{
-		buildDate: parse('20231001122750', 'yyyyMMddHHmmSS', new Date()),
-		operatingSystem: 'linux',
-		type: 'dev',
-		path: 'data/dev/linux/WeNeedToPhase_20231001122750.zip'
-	}
-]);
+export async function indexBinaries() {
+	const foundbinaries = (
+		await Promise.all([indexBinariesFor('linux'), indexBinariesFor('windows')])
+	).flatMap((v) => v);
+	console.log(`Found ${foundbinaries.length} binaries`);
+	setBinaries(foundbinaries);
+}
 
+async function indexBinariesFor(operationSystem: 'linux' | 'windows'): Promise<Binary[]> {
+	const binariesPath = env.BINARIES_DIR!;
+	const path = join(binariesPath, operationSystem);
+	const files = await readdir(path);
+	return files.map((fileName) => fileNameToBinary(fileName, join(path, fileName), operationSystem));
+}
+
+function fileNameToBinary(
+	fileName: string,
+	filePath: string,
+	operatingSystem: 'linux' | 'windows'
+): Binary {
+	const dateString = fileName.replaceAll('WeNeedToPhase_', '').replaceAll('.zip', '');
+	return {
+		operatingSystem,
+		type: 'dev',
+		path: filePath,
+		buildDate: parse(dateString, 'yyyyMMddHHmmSS', new Date())
+	};
+}
+
+export let binaries: Binary[] = [];
+
+export function setBinaries(newBinaries: Binary[]) {
+	binaries = newBinaries;
+}

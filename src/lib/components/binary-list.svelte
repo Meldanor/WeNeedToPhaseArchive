@@ -1,15 +1,15 @@
 <script lang="ts">
 	import type { Binary } from '$lib/interfaces/binary';
-	import { binaries } from '$lib/stores/binaries';
 	import { formatISO, getWeek } from 'date-fns';
 	import getYear from 'date-fns/getYear';
 	import { groupBy } from 'lodash-es';
 
 	export let operationSystem: 'linux' | 'windows';
+	export let binaries: Binary[];
 
 	$: groupedBinaries = Object.entries(
 		groupBy(
-			$binaries.filter((binary) => binary.operatingSystem === operationSystem),
+			binaries.filter((binary) => binary.operatingSystem === operationSystem),
 			(binary: Binary) => {
 				return `${getYear(binary.buildDate)} - Week ${
 					getWeek(binary.buildDate, { weekStartsOn: 1 }) + 1
